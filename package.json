@@ -1,0 +1,15 @@
+{
+  "name": "nchat-fetcher",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "keywords": [],
+  "devDependencies": {
+    "@types/node-fetch": "2.1.1"
+  },
+  "dependencies": {
+    "node-fetch": "2.1.2"
+  },
+  "author": "Progress <support@telerik.com>",
+  "license": "Apache-2.0"
+}
