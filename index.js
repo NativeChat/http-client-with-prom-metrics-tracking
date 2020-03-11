@@ -25,7 +25,8 @@ class Fetcher {
     async fetch(url, options) {
         let timer;
         let currentRequestLabels;
-        if (external_http_request_duration_seconds_histogram) {
+        const shouldTraceRequest = (!options || !options.skipTraceRequest) && external_http_request_duration_seconds_histogram;
+        if (shouldTraceRequest) {
             currentRequestLabels = {
                 [constants.Metrics.Labels.Target]: new URL(url).host,
                 [constants.Metrics.Labels.Method]: options && options.method || constants.Metrics.DefaultValues.Method
@@ -39,8 +40,7 @@ class Fetcher {
         try {
             const response = await _fetch(url, options);
             const endTime = process.hrtime(startTime);
-            if (external_http_request_duration_seconds_histogram) {
-
+            if (shouldTraceRequest) {
                 currentRequestLabels[constants.Metrics.Labels.StatusCode] = response.status;
                 timer();
             }
