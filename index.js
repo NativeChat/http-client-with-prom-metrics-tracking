@@ -2,12 +2,14 @@
 
 const fetch = require('node-fetch');
 const constants = require('./constants');
+const { MetricsTracker } = require('nodejs-metrics');
 
-let external_http_request_duration_seconds_histogram = null;
+let metricsTracker = null;
 
 const _fetch = async (url, options, retries = 1) => {
     try {
-        return await fetch(url, options);
+        const result = await fetch(url, options);
+        return result;
     } catch (err) {
         if (retries < constants.MaxRetries) {
             return _fetch(url, options, retries + 1);
@@ -23,28 +25,28 @@ class Fetcher {
     }
 
     async fetch(url, options) {
-        let timer;
-        let currentRequestLabels;
-        const shouldTraceRequest = (!options || !options.skipTraceRequest) && external_http_request_duration_seconds_histogram;
-        if (shouldTraceRequest) {
-            currentRequestLabels = {
-                [constants.Metrics.Labels.Target]: new URL(url).host,
-                [constants.Metrics.Labels.Method]: options && options.method || constants.Metrics.DefaultValues.Method
-            };
-
-            timer = external_http_request_duration_seconds_histogram.startTimer(currentRequestLabels);
-        }
-
+        const shouldTrackRequest = (!options || !options.skipTrackRequest) && metricsTracker;
         const startTime = process.hrtime();
 
+        let response;
         try {
-            const response = await _fetch(url, options);
-            const endTime = process.hrtime(startTime);
-            if (shouldTraceRequest) {
-                currentRequestLabels[constants.Metrics.Labels.StatusCode] = response.status;
-                timer();
+            if (shouldTrackRequest) {
+                const currentRequestLabels = {
+                    [constants.Metrics.Labels.Target]: new URL(url).host,
+                    [constants.Metrics.Labels.Method]: options && options.method || constants.Metrics.DefaultValues.Method
+                };
+
+                response = await metricsTracker.trackHistogramDuration({
+                    metricName: constants.Metrics.HTTPMetricName,
+                    labels: currentRequestLabels,
+                    action: _fetch.bind(null, url, options),
+                    handleResult: (result, labels) => { labels[constants.Metrics.Labels.StatusCode] = result.status; }
+                });
+            } else {
+                response = await _fetch(url, options);
             }
 
+            const endTime = process.hrtime(startTime);
             if (endTime[0] >= constants.WarnAfterSeconds) {
                 this.logger.warn(`Request to ${url} took ${endTime[0]} seconds to execute.`);
             }
@@ -68,12 +70,16 @@ class Fetcher {
 
 module.exports = {
     collectDefaultMetrics: (promClient) => {
-        const external_http_request_duration_seconds_labels = [constants.Metrics.Labels.Target, constants.Metrics.Labels.Method, constants.Metrics.Labels.StatusCode];
-        external_http_request_duration_seconds_histogram = new promClient.Histogram({
-            name: 'external_http_request_duration_seconds',
-            help: `duration histogram of http responses labeled with: ${external_http_request_duration_seconds_labels.join(', ')}`,
-            labelNames: external_http_request_duration_seconds_labels,
-            buckets: constants.Metrics.HistogramValues.Buckets
+        const external_http_request_duration_seconds_labels = [constants.Metrics.Labels.Target, constants.Metrics.Labels.Method, constants.Metrics.Labels.StatusCode, constants.Metrics.Labels.Error];
+        metricsTracker = new MetricsTracker({
+            metrics: {
+                [constants.Metrics.HTTPMetricName]: new promClient.Histogram({
+                    name: 'external_http_request_duration_seconds',
+                    help: `duration histogram of http responses labeled with: ${external_http_request_duration_seconds_labels.join(', ')}`,
+                    labelNames: external_http_request_duration_seconds_labels,
+                    buckets: constants.Metrics.HistogramValues.Buckets
+                })
+            }
         });
     },
     fetcherFactory: (logger) => {
