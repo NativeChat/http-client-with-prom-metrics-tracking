@@ -98,6 +98,18 @@ describe('Fetcher', () => {
             await expectAsync(fetcher.fetch(url)).toBeRejected();
             expect(errorText).toEqual(`Failed request for ${url} with "request to ${url} failed, reason: socket hang up" after 0 seconds`);
         });
+
+        it('returned fetcher should respect timeout and should not retry timeout requests.', async () => {
+            const fetcher = fetcherFactory({error: () => {}});
+            const url = `${TestServer.BaseUrl}${TestServer.SlowEndpointPath}`;
+            const timeout = 1000;
+            const startTime = Date.now();
+            await expectAsync(fetcher.fetch(url, { timeout })).toBeRejectedWithError(`network timeout at: ${url}`);
+            const endTime = Date.now();
+            const elapsedTimeMilliseconds = endTime - startTime;
+            expect(elapsedTimeMilliseconds).toBeGreaterThanOrEqual(timeout);
+            expect(elapsedTimeMilliseconds).toBeLessThanOrEqual(timeout * 2);
+        });
     });
 
     describe('collectDefaultMetrics', () => {
@@ -111,7 +123,7 @@ describe('Fetcher', () => {
             expect(metrics).toEqual(ExpectedMetricComments);
         });
 
-        fit('should track metrics.', async () => {
+        it('should track metrics.', async () => {
             collectDefaultMetrics(client);
             const fetcher = fetcherFactory({});
 

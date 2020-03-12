@@ -11,7 +11,7 @@ const _fetch = async (url, options, retries = 1) => {
         const result = await fetch(url, options);
         return result;
     } catch (err) {
-        if (retries < constants.MaxRetries) {
+        if (retries < constants.MaxRetries && err.type !== 'request-timeout') {
             return _fetch(url, options, retries + 1);
         } else {
             throw err;
