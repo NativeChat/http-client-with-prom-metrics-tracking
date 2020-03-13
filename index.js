@@ -11,7 +11,7 @@ const _fetch = async (url, options, retries = 1) => {
         const result = await fetch(url, options);
         return result;
     } catch (err) {
-        if (retries < constants.MaxRetries && err.type !== 'request-timeout') {
+        if (retries < constants.MaxRetries && err.type !== constants.TimeoutErrorString) {
             return _fetch(url, options, retries + 1);
         } else {
             throw err;
@@ -21,7 +21,7 @@ const _fetch = async (url, options, retries = 1) => {
 
 class Fetcher {
     constructor(logger) {
-        this.logger = logger;
+        this._logger = logger;
     }
 
     async fetch(url, options) {
@@ -37,7 +37,7 @@ class Fetcher {
                 };
 
                 response = await metricsTracker.trackHistogramDuration({
-                    metricName: constants.Metrics.HTTPMetricName,
+                    metricName: constants.Metrics.ExternalHttpRequestDurationSeconds,
                     labels: currentRequestLabels,
                     action: _fetch.bind(null, url, options),
                     handleResult: (result, labels) => { labels[constants.Metrics.Labels.StatusCode] = result.status; }
@@ -48,7 +48,7 @@ class Fetcher {
 
             const endTime = process.hrtime(startTime);
             if (endTime[0] >= constants.WarnAfterSeconds) {
-                this.logger.warn(`Request to ${url} took ${endTime[0]} seconds to execute.`);
+                this._logger.warn(`Request to ${url} took ${endTime[0]} seconds to execute.`);
             }
 
             // Always drain the response body to avoid memory leaks.
@@ -62,7 +62,7 @@ class Fetcher {
             return response;
         } catch (error) {
             const endTime = process.hrtime(startTime);
-            this.logger.error(`Failed request for ${url} with "${error.message}" after ${endTime[0]} seconds`);
+            this._logger.error(`Failed request for ${url} with "${error.message}" after ${endTime[0]} seconds`);
             throw error;
         }
     }
@@ -70,13 +70,13 @@ class Fetcher {
 
 module.exports = {
     collectDefaultMetrics: (promClient) => {
-        const external_http_request_duration_seconds_labels = [constants.Metrics.Labels.Target, constants.Metrics.Labels.Method, constants.Metrics.Labels.StatusCode, constants.Metrics.Labels.Error];
+        const externalHttpRequestDurationLabels = [constants.Metrics.Labels.Target, constants.Metrics.Labels.Method, constants.Metrics.Labels.StatusCode, constants.Metrics.Labels.Error];
         metricsTracker = new MetricsTracker({
             metrics: {
-                [constants.Metrics.HTTPMetricName]: new promClient.Histogram({
-                    name: 'external_http_request_duration_seconds',
-                    help: `duration histogram of http responses labeled with: ${external_http_request_duration_seconds_labels.join(', ')}`,
-                    labelNames: external_http_request_duration_seconds_labels,
+                [constants.Metrics.ExternalHttpRequestDurationSeconds]: new promClient.Histogram({
+                    name: constants.Metrics.ExternalHttpRequestDurationSeconds,
+                    help: `duration histogram of http responses labeled with: ${externalHttpRequestDurationLabels.join(', ')}`,
+                    labelNames: externalHttpRequestDurationLabels,
                     buckets: constants.Metrics.HistogramValues.Buckets
                 })
             }
