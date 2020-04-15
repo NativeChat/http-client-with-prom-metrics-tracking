@@ -139,7 +139,7 @@ describe('Fetcher', () => {
             await expectAsync(fetcher.fetch(url)).toBeRejected();
 
             metrics = client.register.metrics({ timestamps: false });
-            metricsWithoutSumValue = getMetricsWithoutSumValue(metrics);;
+            metricsWithoutSumValue = getMetricsWithoutSumValue(metrics);
             expecedMetrics += getExpectedMetrics({ showError: true, skipComments: true });
             expect(metricsWithoutSumValue).toEqual(expecedMetrics);
         });
