@@ -19,5 +19,7 @@ module.exports = {
     MaxRetries: 5,
     WarnAfterSeconds: 5,
     TimeoutErrorString: 'request-timeout',
-    defaultRequestTimeout: 50 * 1000
+    DefaultRequestOptions: {
+        timeout: 50 * 1000
+    }
 };

@@ -69,9 +69,8 @@ class Fetcher {
     }
 
     _setDefaultOptions(options) {
-        const defaultOptions = options || {};
-        defaultOptions.timeout = defaultOptions.timeout || constants.defaultRequestTimeout;
-        return defaultOptions;
+        const mergedOptions = Object.assign({}, constants.DefaultRequestOptions, options);
+        return mergedOptions;
     }
 }
 
