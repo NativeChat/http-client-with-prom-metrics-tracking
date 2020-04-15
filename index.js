@@ -25,7 +25,8 @@ class Fetcher {
     }
 
     async fetch(url, options) {
-        const shouldTrackRequest = (!options || !options.skipTrackRequest) && metricsTracker;
+        const mergedOptions = this._setDefaultOptions(options);
+        const shouldTrackRequest = !mergedOptions.skipTrackRequest && metricsTracker;
         const startTime = process.hrtime();
 
         let response;
@@ -33,17 +34,17 @@ class Fetcher {
             if (shouldTrackRequest) {
                 const currentRequestLabels = {
                     [constants.Metrics.Labels.Target]: new URL(url).host,
-                    [constants.Metrics.Labels.Method]: options && options.method || constants.Metrics.DefaultValues.Method
+                    [constants.Metrics.Labels.Method]: mergedOptions && mergedOptions.method || constants.Metrics.DefaultValues.Method
                 };
 
                 response = await metricsTracker.trackHistogramDuration({
                     metricName: constants.Metrics.ExternalHttpRequestDurationSeconds,
                     labels: currentRequestLabels,
-                    action: _fetch.bind(null, url, options),
+                    action: _fetch.bind(null, url, mergedOptions),
                     handleResult: (result, labels) => { labels[constants.Metrics.Labels.StatusCode] = result.status; }
                 });
             } else {
-                response = await _fetch(url, options);
+                response = await _fetch(url, mergedOptions);
             }
 
             const endTime = process.hrtime(startTime);
@@ -65,6 +66,12 @@ class Fetcher {
             this._logger.error(`Failed request for ${url} with "${error.message}" after ${endTime[0]} seconds`);
             throw error;
         }
+    }
+
+    _setDefaultOptions(options) {
+        const defaultOptions = options || {};
+        defaultOptions.timeout = defaultOptions.timeout || constants.defaultRequestTimeout;
+        return defaultOptions;
     }
 }
 
