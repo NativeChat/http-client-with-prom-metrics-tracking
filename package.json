@@ -1,9 +1,10 @@
 {
   "name": "http-client-with-prom-metrics-tracking",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "",
   "main": "index.js",
   "keywords": [],
+  "types": "./declarations/http-client-with-prom-metrics-tracking.d.ts",
   "scripts": {
     "test-integration": "node spec/integration-runner.js",
     "lint": "eslint ./spec/ *.js"
@@ -15,6 +16,7 @@
     "jasmine": "3.5.0",
     "jasmine-expect": "4.0.3",
     "jasmine-reporters": "2.3.2",
+    "nchat-dev-common": "0.2.0",
     "prom-client": "11.5.3"
   },
   "dependencies": {
