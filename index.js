@@ -57,7 +57,13 @@ class Fetcher {
             // https://github.com/bitinn/node-fetch/issues/420
             const buffer = await response.buffer();
             response.text = async () => buffer.toString();
-            response.json = async () => JSON.parse(buffer.toString());
+            response.json = async () => {
+                try {
+                    return JSON.parse(buffer.toString());
+                } catch(e) {
+                    throw new Error(`Error parsing response from ${url}. Status: ${response.status}. Body: ${buffer.toString()}. ${e.toString()}`);
+                }
+            };
             response.buffer = async () => buffer;
 
             return response;
