@@ -57,13 +57,19 @@ class Fetcher {
             // https://github.com/bitinn/node-fetch/issues/420
             const buffer = await response.buffer();
             response.text = async () => buffer.toString();
-            response.json = async () => JSON.parse(buffer.toString());
+            response.json = async () => {
+                try {
+                    return JSON.parse(buffer.toString());
+                } catch(e) {
+                    throw new Error(`Error parsing response from ${this._sanitizeUrl(url)}. Status: ${response.status}. Body: ${buffer.toString()}. ${e.toString()}`);
+                }
+            };
             response.buffer = async () => buffer;
 
             return response;
         } catch (error) {
             const endTime = process.hrtime(startTime);
-            this._logger.error(`Failed request for ${url} with "${error.message}" after ${endTime[0]} seconds`);
+            this._logger.error(`Failed request for ${this._sanitizeUrl(url)} with "${error.message}" after ${endTime[0]} seconds`);
             throw error;
         }
     }
@@ -71,6 +77,12 @@ class Fetcher {
     _setDefaultOptions(options) {
         const mergedOptions = Object.assign({}, constants.DefaultRequestOptions, options);
         return mergedOptions;
+    }
+
+    _sanitizeUrl(url) {
+        const parsedUrl = new URL(url);
+
+        return `${parsedUrl.protocol}${parsedUrl.hostname}${parsedUrl.pathname}`;
     }
 }
 
