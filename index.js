@@ -82,7 +82,7 @@ class Fetcher {
     _sanitizeUrl(url) {
         const parsedUrl = new URL(url);
 
-        return `${parsedUrl.protocol}//${parsedUrl.hostname}${parsedUrl.pathname}`;
+        return `${parsedUrl.protocol}//${parsedUrl.host}${parsedUrl.pathname}`;
     }
 }
 
