@@ -1,3 +1,4 @@
+import { Headers } from "node-fetch"
 import { ILogger } from "nchat-dev-common"
 
 interface IFetcherClient {
