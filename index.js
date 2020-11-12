@@ -41,7 +41,15 @@ class Fetcher {
                     metricName: constants.Metrics.ExternalHttpRequestDurationSeconds,
                     labels: currentRequestLabels,
                     action: _fetch.bind(null, url, mergedOptions),
-                    handleResult: (result, labels) => { labels[constants.Metrics.Labels.StatusCode] = result.status; }
+                    handleResult: (err, labels, result) => {
+                        if (err) {
+                            labels[Labels.Error] = err.name || err.type || err.code;
+
+                            return;
+                        }
+
+                        labels[constants.Metrics.Labels.StatusCode] = result.status;
+                    }
                 });
             } else {
                 response = await _fetch(url, mergedOptions);
@@ -60,7 +68,7 @@ class Fetcher {
             response.json = async () => {
                 try {
                     return JSON.parse(buffer.toString());
-                } catch(e) {
+                } catch (e) {
                     throw new Error(`Error parsing response from ${this._sanitizeUrl(url)}. Status: ${response.status}. Body: ${buffer.toString()}. ${e.toString()}`);
                 }
             };
