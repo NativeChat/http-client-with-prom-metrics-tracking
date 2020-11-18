@@ -43,7 +43,7 @@ class Fetcher {
                     action: _fetch.bind(null, url, mergedOptions),
                     handleResult: (err, labels, result) => {
                         if (err) {
-                            labels[Labels.Error] = err.name || err.type || err.code;
+                            labels[constants.Metrics.Labels.Error] = err.name || err.type || err.code;
 
                             return;
                         }
