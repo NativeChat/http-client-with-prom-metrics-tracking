@@ -11,16 +11,16 @@
   },
   "devDependencies": {
     "@types/node-fetch": "2.5.7",
-    "eslint": "6.8.0",
+    "eslint": "8.7.0",
     "express": "4.17.1",
     "jasmine": "3.5.0",
     "jasmine-expect": "4.0.3",
-    "jasmine-reporters": "2.3.2",
+    "jasmine-reporters": "2.5.0",
     "nchat-dev-common": "0.6.0",
     "prom-client": "11.5.3"
   },
   "dependencies": {
-    "node-fetch": "2.6.1",
+    "node-fetch": "2.6.7",
     "nodejs-metrics": "0.11.0"
   },
   "author": "Progress <support@telerik.com>",
