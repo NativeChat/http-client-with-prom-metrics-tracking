@@ -1,6 +1,6 @@
 {
   "name": "http-client-with-prom-metrics-tracking",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "",
   "main": "index.js",
   "keywords": [],
@@ -16,12 +16,12 @@
     "jasmine": "3.5.0",
     "jasmine-expect": "4.0.3",
     "jasmine-reporters": "2.5.0",
-    "nchat-dev-common": "0.7.0",
+    "nchat-dev-common": "0.8.0",
     "prom-client": "11.5.3"
   },
   "dependencies": {
     "node-fetch": "2.6.7",
-    "nodejs-metrics": "0.13.0"
+    "nodejs-metrics": "0.14.0"
   },
   "author": "Progress <support@telerik.com>",
   "license": "Apache-2.0"
