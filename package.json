@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "node-fetch": "2.6.7",
-    "nodejs-metrics": "0.14.0-dev"
+    "nodejs-metrics": "0.14.0"
   },
   "author": "Progress <support@telerik.com>",
   "license": "Apache-2.0"
