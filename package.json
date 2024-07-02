@@ -6,6 +6,7 @@
   "keywords": [],
   "types": "./declarations/http-client-with-prom-metrics-tracking.d.ts",
   "scripts": {
+    "build": "echo \"Info: this is a JS package no build\" && exit 0",
     "test": "npm run test-integration",
     "test-integration": "node spec/integration-runner.js",
     "lint": "eslint ./spec/ *.js"
