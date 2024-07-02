@@ -9,7 +9,8 @@
     "build": "echo \"Info: this is a JS package no build\" && exit 0",
     "test": "npm run test-integration",
     "test-integration": "node spec/integration-runner.js",
-    "lint": "eslint ./spec/ *.js"
+    "lint": "eslint ./spec/ *.js",
+    "security-pack": "tar zcvf htp-client-with-prom-mertics-tracking.tgz --exclude='./node_modules' --exclude='.git' --exclude='coverage' --exclude='reports' --exclude='.vscode' --exclude='*.tgz' *"
   },
   "devDependencies": {
     "@types/node-fetch": "2.5.7",
