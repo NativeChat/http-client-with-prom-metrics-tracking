@@ -1,6 +1,6 @@
 {
   "name": "http-client-with-prom-metrics-tracking",
-  "version": "0.5.5",
+  "version": "0.5.6",
   "description": "",
   "main": "index.js",
   "keywords": [],
@@ -15,7 +15,7 @@
   "devDependencies": {
     "@types/node-fetch": "2.5.7",
     "eslint": "8.7.0",
-    "express": "4.17.3",
+    "express": "4.20.0",
     "jasmine": "3.5.0",
     "jasmine-expect": "4.0.3",
     "jasmine-reporters": "2.5.0",
@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "node-fetch": "2.6.7",
-    "nodejs-metrics": "0.14.1"
+    "nodejs-metrics": "0.14.3"
   },
   "author": "Progress <support@telerik.com>",
   "license": "Apache-2.0"
